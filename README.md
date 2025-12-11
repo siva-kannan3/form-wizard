@@ -1,73 +1,89 @@
-# React + TypeScript + Vite
+# Job Application Wizard — React + TypeScript + Redux Toolkit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fully typed, schema-driven, multi-step Job Application Wizard designed with modern frontend engineering practices.
 
-Currently, two official plugins are available:
+This project demonstrates:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+  * Dynamic form rendering based on **TypeScript JSON schemas**
+  * Multi-step routing and **validation-gated** navigation
+  * **Async email uniqueness validation**
+  * **Redux Toolkit** state management
+  * **LocalStorage persistence**
+  * Progress calculation based on **visible fields only**
+  * **Vite**-based development
+  * **Vitest + React Testing Library** unit tests
 
-## React Compiler
+-----
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# 📦 Tech Stack
 
-## Expanding the ESLint configuration
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework** | **React 18** | UI Component Model |
+| **Language** | **TypeScript** | Static Typing & Schema Definition |
+| **Bundler** | **Vite** | Fast Development & Build |
+| **State** | **Redux Toolkit** | Predictable Global State Management |
+| **Routing** | **React Router v6** | Step Navigation & URL Management |
+| **Testing** | **Vitest + RTL** | Unit and Component Testing |
+| **Data** | **LocalStorage** | Persistence & State Hydration |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+-----
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# 🛠️ Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 1\. Install Dependencies
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+# Or:
+# yarn install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 2\. Run Development Server
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Open your browser to: `http://localhost:5173`
+
+-----
+
+# 🧪 Running Tests
+
+The project uses **Vitest** for a fast and efficient testing setup, along with **React Testing Library** for robust UI component tests.
+
+## Run all tests:
+
+```bash
+npm run test
+```
+
+## Coverage report:
+
+```bash
+npm run coverage
+```
+
+> Results appear in: `coverage/` directory.
+
+-----
+
+# 🏗️ Build for Production
+
+Create the optimized, production-ready build:
+
+```bash
+npm run build
+```
+
+## Preview locally:
+
+```bash
+npm run preview
+```
+
+> This simulates how the app will run in a static production environment.
+
+-----
+
