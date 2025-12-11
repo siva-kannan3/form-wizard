@@ -6,6 +6,8 @@ import { useJobApplication } from '../../hooks/useJobApplication';
 import { useStepNavigation } from '../../hooks/useStepNavigation';
 import { useSelector } from 'react-redux';
 import { PersonalStep } from '../../components/PersonalStep'; // adjust path if needed
+import { useEmailUniqueness } from '../../hooks/useEmailUniqueness';
+import { getAsyncEmailState, getCurrentStep } from '../../slice/selectors';
 
 vi.mock('../../hooks/useJobApplication', () => ({
   useJobApplication: vi.fn(),
@@ -15,6 +17,10 @@ vi.mock('../../hooks/useStepNavigation', () => ({
   useStepNavigation: vi.fn(),
 }));
 
+vi.mock('../../hooks/useEmailUniqueness', () => ({
+  useEmailUniqueness: vi.fn(),
+}));
+
 vi.mock('react-redux', () => ({
   useSelector: vi.fn(),
 }));
@@ -22,6 +28,7 @@ vi.mock('react-redux', () => ({
 const mockedUseJobApplication = useJobApplication as unknown as Mock;
 const mockedUseStepNavigation = useStepNavigation as unknown as Mock;
 const mockedUseSelector = useSelector as unknown as Mock;
+const mockedUseEmailUniqueness = useEmailUniqueness as unknown as Mock;
 
 describe('PersonalStep', () => {
   const baseValues = {
@@ -46,8 +53,15 @@ describe('PersonalStep', () => {
       next: vi.fn(),
     });
 
-    mockedUseSelector.mockImplementation(() => {
-      return 'personal';
+    mockedUseEmailUniqueness.mockReturnValue({
+      handleEmailBlur: vi.fn(),
+    });
+
+    mockedUseSelector.mockImplementation((selector) => {
+      if (selector === getCurrentStep) return 'personal';
+      if (selector === getAsyncEmailState) return { status: 'idle', error: null };
+
+      return undefined;
     });
   });
 
@@ -115,6 +129,7 @@ describe('PersonalStep', () => {
 
   it('calls next(currentStep) on submit', async () => {
     const user = userEvent.setup();
+
     const next = vi.fn();
     mockedUseStepNavigation.mockReturnValue({ next });
     mockedUseSelector.mockImplementation(() => 'personal');
