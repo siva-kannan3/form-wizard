@@ -7,6 +7,7 @@ import { useJobApplication } from '../hooks/useJobApplication';
 import { useStepNavigation } from '../hooks/useStepNavigation';
 import { experienceSchema } from '../data/experienceSchema';
 import { rolePreferenceSchema } from '../data/rolesSchema';
+import ReviewStep from './ReviewStep';
 
 export const ApplicationFormWizard = () => {
   const currentStep = useSelector(getCurrentStep);
@@ -40,6 +41,8 @@ export const ApplicationFormWizard = () => {
         schema={rolePreferenceSchema}
       />
     );
+  } else if (currentStep === STEPS.REVIEW) {
+    return <ReviewStep />;
   }
 
   return <div>Application Form Wizard</div>;

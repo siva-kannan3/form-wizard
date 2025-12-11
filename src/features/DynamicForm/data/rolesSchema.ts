@@ -19,6 +19,7 @@ export const rolePreferenceSchema: StepSchema = {
       type: 'number',
       rendererType: 'textInput',
       min: 0,
+      required: true,
       showIf: { fieldId: 'role', equals: 'frontend' },
     },
     {
@@ -33,6 +34,7 @@ export const rolePreferenceSchema: StepSchema = {
       type: 'number',
       rendererType: 'numberInput',
       min: 0,
+      required: true,
       showIf: { fieldId: 'role', equals: 'backend' },
     },
     {
@@ -41,6 +43,7 @@ export const rolePreferenceSchema: StepSchema = {
       type: 'number',
       rendererType: 'numberInput',
       min: 0,
+      required: true,
       showIf: { fieldId: 'role', equals: 'qa' },
     },
   ],

@@ -30,6 +30,33 @@ export function validateStepFromSchema(
       }
     }
 
+    if (field.id === 'portfolioUrls') {
+      if (!Array.isArray(val) || val.length === 0) {
+        continue;
+      }
+
+      const urlRe = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/\S*)?$/i;
+
+      let badIndex = -1;
+      for (let i = 0; i < val.length; i++) {
+        const item = val[i];
+        if (typeof item !== 'string' || item.trim() === '') {
+          badIndex = i;
+          break;
+        }
+        if (!urlRe.test(item.trim())) {
+          badIndex = i;
+          break;
+        }
+      }
+
+      if (badIndex !== -1) {
+        errors[field.id] = `${field.label} contains an invalid URL at position ${badIndex + 1}`;
+      }
+
+      continue;
+    }
+
     // skip empty optional
     if (val === undefined || val === null || val === '') continue;
 
