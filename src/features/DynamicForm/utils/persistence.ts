@@ -1,13 +1,5 @@
-import type { JobApplicationValues, StepId } from '../slice/jobApplicationSlice';
-
-export const STORAGE_KEY = 'job-app-state-v1';
-
-export type PersistedApp = {
-  values: JobApplicationValues;
-  currentStep: StepId;
-  version: number;
-  updatedAt: string;
-};
+import { STORAGE_KEY } from '../constants/common';
+import type { PersistedApp } from '../types/persistence.types';
 
 export function loadPersistedJobApplication(): PersistedApp | null {
   try {

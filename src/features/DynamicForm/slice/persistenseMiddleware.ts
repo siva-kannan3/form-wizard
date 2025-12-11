@@ -1,5 +1,5 @@
 import { type Middleware } from '@reduxjs/toolkit';
-import { savePersistedJobApplication, type PersistedApp } from '../utils/persistence';
+import { savePersistedJobApplication } from '../utils/persistence';
 
 import {
   updatePersonalField,
@@ -12,8 +12,9 @@ import {
   resetApplication,
 } from './jobApplicationSlice';
 import { debounce } from '../utils/common';
-import { JOB_APPLICATION_LOCAL_STORAGE_VERSION } from '../constants/steps';
 import type { RootState } from '../../../store';
+import { JOB_APPLICATION_LOCAL_STORAGE_VERSION } from '../constants/common';
+import type { PersistedApp } from '../types/persistence.types';
 
 const TRIGGER_ACTIONS = new Set([
   updatePersonalField.type,

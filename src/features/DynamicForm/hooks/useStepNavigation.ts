@@ -5,9 +5,10 @@ import { getStepValues } from '../slice/selectors';
 import { useJobApplication } from './useJobApplication';
 import { getFirstIncompleteStep } from '../utils/validation';
 import { getNextStep, getPreviousStep, STEP_ORDER } from '../utils/steps';
-import type { StepId } from '../slice/jobApplicationSlice';
-import { JOB_APPLICATION_LOCAL_STORAGE_VERSION, STEPS } from '../constants/steps';
+import { STEPS } from '../constants/steps';
 import { savePersistedJobApplication } from '../utils/persistence';
+import type { StepId } from '../types/store.types';
+import { JOB_APPLICATION_LOCAL_STORAGE_VERSION } from '../constants/common';
 
 export function useStepNavigation() {
   const navigate = useNavigate();

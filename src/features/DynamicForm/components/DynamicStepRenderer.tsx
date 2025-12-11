@@ -1,8 +1,8 @@
 import React, { type FormEvent } from 'react';
 import { InputRenderer } from './InputRenderer';
 import type { StepSchema } from '../types/jobApplication.types';
-import type { FieldErrors } from '../slice/jobApplicationSlice';
 import { isFieldVisible } from '../utils/visibility';
+import type { FieldErrors } from '../types/store.types';
 
 export type StepValues = Record<string, any>;
 

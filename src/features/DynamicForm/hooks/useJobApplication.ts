@@ -8,8 +8,6 @@ import {
   updatePortfolioUrl,
   deletePortfolioUrl,
   setStepErrors,
-  type FieldErrors,
-  type PersonalData,
   resetApplication,
 } from '../slice/jobApplicationSlice';
 import { validatePersonal, validateStepFromSchema } from '../utils/validation';
@@ -18,6 +16,7 @@ import { rolePreferenceSchema } from '../data/rolesSchema';
 import { getStepErrors, getStepValues } from '../slice/selectors';
 import { useNavigate } from 'react-router-dom';
 import { clearPersistedJobApplication } from '../utils/persistence';
+import type { FieldErrors, PersonalData } from '../types/store.types';
 
 export function useJobApplication() {
   const dispatch = useDispatch();

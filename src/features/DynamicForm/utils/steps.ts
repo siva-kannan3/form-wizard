@@ -1,5 +1,5 @@
 import { STEPS } from '../constants/steps';
-import type { StepId } from '../slice/jobApplicationSlice';
+import type { StepId } from '../types/store.types';
 
 export const STEP_ORDER: StepId[] = [STEPS.PERSONAL, STEPS.EXPERIENCE, STEPS.ROLE, STEPS.REVIEW];
 

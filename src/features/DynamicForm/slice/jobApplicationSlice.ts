@@ -1,50 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { STEPS } from '../constants/steps';
-
-export type StepId = (typeof STEPS)[keyof typeof STEPS];
-
-export interface PersonalData {
-  name: string;
-  phone: string;
-  email: string;
-  location: string;
-}
-
-export interface ExperienceData {
-  yoe?: number;
-  mentorshipRequired?: boolean;
-  teamLead?: boolean;
-  primaryTechStack?: string;
-}
-
-export interface RoleData {
-  role?: 'frontend' | 'backend' | 'qa';
-  reactYoe?: number;
-  portfolioUrls: string[];
-  nodeYoe?: number;
-  automationExperience?: number;
-}
-
-export interface JobApplicationValues {
-  personal: PersonalData;
-  experience: ExperienceData;
-  role: RoleData;
-}
-
-export interface FieldErrors {
-  [fieldName: string]: string | undefined;
-}
-
-export interface JobApplicationState {
-  currentStep: StepId;
-  values: JobApplicationValues;
-  errors: {
-    personal: FieldErrors;
-    experience: FieldErrors;
-    role: FieldErrors;
-  };
-}
+import type {
+  ExperienceData,
+  FieldErrors,
+  JobApplicationState,
+  PersonalData,
+  RoleData,
+  StepId,
+} from '../types/store.types';
 
 const initialState: JobApplicationState = {
   currentStep: STEPS.PERSONAL,

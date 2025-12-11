@@ -1,13 +1,11 @@
 import { STEPS } from '../constants/steps';
 import { experienceSchema } from '../data/experienceSchema';
 import { rolePreferenceSchema } from '../data/rolesSchema';
-import type { JobApplicationValues } from '../slice/jobApplicationSlice';
 import type { StepSchema } from '../types/jobApplication.types';
+import type { FieldErrors, JobApplicationValues } from '../types/store.types';
 import type { STEP_ORDER } from './steps';
 
 import { isFieldVisible } from './visibility';
-
-export type FieldErrors = Record<string, string | undefined>;
 
 export function validateStepFromSchema(
   schema: StepSchema,

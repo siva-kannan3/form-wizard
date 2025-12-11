@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { loadPersistedJobApplication, type PersistedApp } from '../utils/persistence';
+import { loadPersistedJobApplication } from '../utils/persistence';
 import { setValuesFromLocalStorage } from '../slice/jobApplicationSlice';
+import type { PersistedApp } from '../types/persistence.types';
 
 export function useHydrateFormFromStorage() {
   const dispatch = useDispatch();
