@@ -13,7 +13,6 @@ interface DynamicStepRendererProps {
   onChange: (field: string, value: any) => void;
   onNext: () => void;
   onBack?: () => void;
-  onBlur?: (fieldName: string) => void;
 }
 
 export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
@@ -23,7 +22,6 @@ export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
   onChange,
   onNext,
   onBack,
-  onBlur,
 }) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,7 +42,6 @@ export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
             value={values[field.id]}
             error={errors[field.id]}
             onChange={(name, val) => onChange(name, val)}
-            onBlur={(name) => onBlur && onBlur(name)}
           />
         );
       })}

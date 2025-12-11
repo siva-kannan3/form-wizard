@@ -9,7 +9,6 @@ interface InputRendererProps {
   value: InputValue;
   error?: string | undefined;
   onChange: (name: string, value: InputValue) => void;
-  onBlur?: (name: string) => void;
   idPrefix?: string;
 }
 
@@ -18,7 +17,6 @@ export const InputRenderer: React.FC<InputRendererProps> = ({
   value,
   error,
   onChange,
-  onBlur,
   idPrefix = 'field',
 }) => {
   const id = `${idPrefix}-${field.id}`;
@@ -42,7 +40,6 @@ export const InputRenderer: React.FC<InputRendererProps> = ({
   const sharedProps = {
     id,
     name: field.id,
-    onBlur: () => onBlur && onBlur(field.id),
   } as const;
 
   let inputNode: React.ReactNode = null;

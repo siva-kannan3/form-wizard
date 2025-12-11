@@ -19,8 +19,9 @@ export const PersonalStep = () => {
       <h2 className="formTitle">Personal Info</h2>
 
       <div className="formField">
-        <label>Name</label>
+        <label htmlFor="name">Name</label>
         <input
+          id="name"
           type="text"
           value={values.personal.name}
           onChange={(e) => setPersonalField('name', e.target.value)}
@@ -29,8 +30,9 @@ export const PersonalStep = () => {
       </div>
 
       <div className="formField">
-        <label>Phone Number</label>
+        <label htmlFor="phone">Phone Number</label>
         <input
+          id="phone"
           type="tel"
           value={values.personal.phone}
           onChange={(e) => setPersonalField('phone', e.target.value)}
@@ -39,8 +41,9 @@ export const PersonalStep = () => {
       </div>
 
       <div className="formField">
-        <label>Email</label>
+        <label htmlFor="email">Email</label>
         <input
+          id="email"
           type="email"
           value={values.personal.email}
           onChange={(e) => setPersonalField('email', e.target.value)}
@@ -49,8 +52,9 @@ export const PersonalStep = () => {
       </div>
 
       <div className="formField">
-        <label>Location</label>
+        <label htmlFor="location">Location</label>
         <input
+          id="location"
           type="text"
           value={values.personal.location}
           onChange={(e) => setPersonalField('location', e.target.value)}

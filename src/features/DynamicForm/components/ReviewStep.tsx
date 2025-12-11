@@ -10,6 +10,7 @@ import { experienceSchema } from '../data/experienceSchema';
 import { rolePreferenceSchema } from '../data/rolesSchema';
 import RenderSchemaReview from './RenderSchemaReview';
 import { ReviewRow } from './ReviewRow';
+import { clearPersistedJobApplication } from '../utils/persistence';
 
 const portfolioRenderer = (value: string[]) => {
   if (!Array.isArray(value) || value.length === 0) return '—';
@@ -30,7 +31,9 @@ export const ReviewStep: React.FC = () => {
   const { back, goTo } = useStepNavigation();
   const currentStep = useSelector(getCurrentStep);
 
-  const handleEdit = (stepId: 'personal' | 'experience' | 'role') => {
+  const handleEdit = (
+    stepId: typeof STEPS.PERSONAL | typeof STEPS.EXPERIENCE | typeof STEPS.ROLE,
+  ) => {
     goTo(stepId);
   };
 
@@ -44,12 +47,7 @@ export const ReviewStep: React.FC = () => {
     console.log('Submitting application:', values);
 
     dispatch(resetApplication());
-    try {
-      localStorage.removeItem('job-app-state-v1');
-    } catch (e) {
-      console.log('Local storage deletion failed', e);
-    }
-
+    clearPersistedJobApplication();
     goTo(STEPS.PERSONAL);
   };
 
