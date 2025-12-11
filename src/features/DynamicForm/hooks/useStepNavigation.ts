@@ -6,7 +6,8 @@ import { useJobApplication } from './useJobApplication';
 import { getFirstIncompleteStep } from '../utils/validation';
 import { getNextStep, getPreviousStep, STEP_ORDER } from '../utils/steps';
 import type { StepId } from '../slice/jobApplicationSlice';
-import { STEPS } from '../constants/steps';
+import { JOB_APPLICATION_LOCAL_STORAGE_VERSION, STEPS } from '../constants/steps';
+import { savePersistedJobApplication } from '../utils/persistence';
 
 export function useStepNavigation() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export function useStepNavigation() {
       if (currentStep === STEPS.PERSONAL) {
         const errs = validatePersonalStep();
         pushStepErrors(STEPS.PERSONAL, errs);
-        if (Object.keys(errs).length > 0) return; // stop on error
+        if (Object.keys(errs).length > 0) return;
       } else if (currentStep === STEPS.EXPERIENCE) {
         const errs = validateExperience();
         pushStepErrors(STEPS.EXPERIENCE, errs);
@@ -42,15 +43,22 @@ export function useStepNavigation() {
         if (Object.keys(errs).length > 0) return;
       }
 
-      const nextStep = getNextStep(currentStep as any);
+      savePersistedJobApplication({
+        currentStep,
+        values,
+        version: JOB_APPLICATION_LOCAL_STORAGE_VERSION,
+        updatedAt: new Date().toISOString(),
+      });
+
+      const nextStep = getNextStep(currentStep);
       if (nextStep) navigate(`/apply/${nextStep}`);
     },
-    [navigate, validatePersonalStep, validateExperience, validateRole, pushStepErrors],
+    [values, navigate, validatePersonalStep, pushStepErrors, validateExperience, validateRole],
   );
 
   const back = useCallback(
-    (currentStep: string) => {
-      const prev = getPreviousStep(currentStep as any);
+    (currentStep: StepId) => {
+      const prev = getPreviousStep(currentStep);
       if (prev) navigate(`/apply/${prev}`);
     },
     [navigate],

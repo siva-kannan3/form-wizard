@@ -84,6 +84,30 @@ export const jobApplicationSlice = createSlice({
   name: 'jobApplication',
   initialState,
   reducers: {
+    setValuesFromLocalStorage(
+      state,
+      action: PayloadAction<
+        Partial<{
+          values: Partial<JobApplicationValues>;
+          currentStep: StepId;
+        }>
+      >,
+    ) {
+      const payload = action.payload;
+      if (!payload) return;
+
+      if (payload.values) {
+        state.values = {
+          ...state.values,
+          ...payload.values,
+        };
+      }
+
+      if (payload.currentStep) {
+        state.currentStep = payload.currentStep;
+      }
+    },
+
     setCurrentStep(state, action: PayloadAction<StepId>) {
       state.currentStep = action.payload;
     },
@@ -158,6 +182,7 @@ export const {
   updatePersonalField,
   updateExperienceField,
   updateRoleField,
+  setValuesFromLocalStorage,
 } = jobApplicationSlice.actions;
 
 export default jobApplicationSlice.reducer;

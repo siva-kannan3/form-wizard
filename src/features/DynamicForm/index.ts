@@ -5,4 +5,7 @@ import RedirectToStep from './components/RedirectToStep';
 // reducers
 import jobApplicationReducer from './slice/jobApplicationSlice';
 
-export { ApplicationFormWizardRoute, RedirectToStep, jobApplicationReducer };
+// middlewares
+import { persistMiddleware } from './slice/persistenseMiddleware';
+
+export { ApplicationFormWizardRoute, RedirectToStep, jobApplicationReducer, persistMiddleware };

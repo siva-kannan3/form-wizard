@@ -10,16 +10,20 @@ import {
   setStepErrors,
   type FieldErrors,
   type PersonalData,
+  resetApplication,
 } from '../slice/jobApplicationSlice';
 import { validatePersonal, validateStepFromSchema } from '../utils/validation';
 import { experienceSchema } from '../data/experienceSchema';
 import { rolePreferenceSchema } from '../data/rolesSchema';
 import { getStepErrors, getStepValues } from '../slice/selectors';
+import { useNavigate } from 'react-router-dom';
+import { clearPersistedJobApplication } from '../utils/persistence';
 
 export function useJobApplication() {
   const dispatch = useDispatch();
   const values = useSelector(getStepValues);
   const errors = useSelector(getStepErrors);
+  const navigate = useNavigate();
 
   const setPersonalField = useCallback(
     (field: keyof PersonalData, value: any) =>
@@ -68,6 +72,12 @@ export function useJobApplication() {
     [dispatch],
   );
 
+  const resetForm = useCallback(() => {
+    dispatch(resetApplication());
+    clearPersistedJobApplication();
+    navigate('/apply/personal', { replace: true });
+  }, [dispatch, navigate]);
+
   return {
     values,
     errors,
@@ -78,6 +88,7 @@ export function useJobApplication() {
     addPortfolio,
     updatePortfolio,
     removePortfolio,
+    resetForm,
     // validators
     validatePersonalStep,
     validateExperience,

@@ -11,7 +11,7 @@ import { rolePreferenceSchema } from '../data/rolesSchema';
 import RenderSchemaReview from './RenderSchemaReview';
 import { ReviewRow } from './ReviewRow';
 
-const portfolioRenderer = (value: any) => {
+const portfolioRenderer = (value: string[]) => {
   if (!Array.isArray(value) || value.length === 0) return '—';
   return (
     <ul style={{ margin: 0, paddingLeft: 18 }}>
@@ -54,56 +54,58 @@ export const ReviewStep: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 980, margin: '0 auto', padding: 16 }}>
-      <h1 style={{ marginBottom: 12 }}>Review & Submit</h1>
+    <div className="reviewStepWrapper">
+      <h2 className="formTitle">Review & Submit</h2>
 
-      <section style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0 }}>Personal</h2>
-          <button type="button" onClick={() => handleEdit('personal')} style={{ fontSize: 13 }}>
-            Edit
-          </button>
-        </div>
+      <div className="reviewSteps">
+        <section className="reviewStep">
+          <div className="titleWrapper">
+            <h3>Personal</h3>
+            <button type="button" onClick={() => handleEdit('personal')}>
+              Edit
+            </button>
+          </div>
 
-        <div style={{ background: '#fafafa', padding: 12, borderRadius: 6, marginTop: 8 }}>
-          <ReviewRow label="Full Name" value={values.personal.name || '—'} />
-          <ReviewRow label="Phone Number" value={values.personal.phone || '—'} />
-          <ReviewRow label="Email" value={values.personal.email || '—'} />
-          <ReviewRow label="Location" value={values.personal.location || '—'} />
-        </div>
-      </section>
+          <div className="content">
+            <ReviewRow label="Full Name" value={values.personal.name || '—'} />
+            <ReviewRow label="Phone Number" value={values.personal.phone || '—'} />
+            <ReviewRow label="Email" value={values.personal.email || '—'} />
+            <ReviewRow label="Location" value={values.personal.location || '—'} />
+          </div>
+        </section>
 
-      <section style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0 }}>Experience</h2>
-          <button type="button" onClick={() => handleEdit('experience')} style={{ fontSize: 13 }}>
-            Edit
-          </button>
-        </div>
+        <section className="reviewStep">
+          <div className="titleWrapper">
+            <h2>Experience</h2>
+            <button type="button" onClick={() => handleEdit('experience')}>
+              Edit
+            </button>
+          </div>
 
-        <div style={{ background: '#fafafa', padding: 12, borderRadius: 6, marginTop: 8 }}>
-          <RenderSchemaReview schema={experienceSchema} sectionValues={values.experience} />
-        </div>
-      </section>
+          <div className="content">
+            <RenderSchemaReview schema={experienceSchema} sectionValues={values.experience} />
+          </div>
+        </section>
 
-      <section style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0 }}>Role Preference</h2>
-          <button type="button" onClick={() => handleEdit('role')} style={{ fontSize: 13 }}>
-            Edit
-          </button>
-        </div>
+        <section className="reviewStep">
+          <div className="titleWrapper">
+            <h2>Role Preference</h2>
+            <button type="button" onClick={() => handleEdit('role')}>
+              Edit
+            </button>
+          </div>
 
-        <div style={{ background: '#fafafa', padding: 12, borderRadius: 6, marginTop: 8 }}>
-          <RenderSchemaReview
-            schema={rolePreferenceSchema}
-            sectionValues={values.role}
-            customRenderer={{ portfolioUrls: portfolioRenderer }}
-          />
-        </div>
-      </section>
+          <div className="content">
+            <RenderSchemaReview
+              schema={rolePreferenceSchema}
+              sectionValues={values.role}
+              customRenderer={{ portfolioUrls: portfolioRenderer }}
+            />
+          </div>
+        </section>
+      </div>
 
-      <div style={{ marginTop: 20 }}>
+      <div className="formFooter">
         <button type="button" onClick={() => back(currentStep)} style={{ marginRight: 8 }}>
           Back
         </button>

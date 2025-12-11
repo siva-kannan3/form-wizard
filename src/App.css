@@ -1,3 +1,74 @@
 #root {
   margin: 0 auto;
 }
+
+button {
+  padding: 4px 8px;
+}
+
+.formRenderer {
+  border: 1px solid black;
+  border-radius: 8px;
+  width: 600px;
+  max-height: 700px;
+  overflow: hidden;
+}
+
+.formTitle {
+  border-bottom: 1px solid lightgray;
+  padding: 8px 16px;
+}
+
+.formField {
+  margin: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formFooter {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  padding: 8px 16px;
+  border-top: 1px solid lightgray;
+  gap: 8px;
+}
+
+.reviewStepWrapper {
+  max-height: 600px;
+  margin: 0 auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.reviewSteps {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.reviewStep .titleWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 16px;
+}
+
+.reviewStep .content {
+  background-color: lightgray;
+  padding: 8px 16px;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}

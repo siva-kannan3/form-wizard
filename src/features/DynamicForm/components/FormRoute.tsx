@@ -1,21 +1,27 @@
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import type { AppDispatch } from '../../../store';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHydrateFormFromStorage } from '../hooks/useHydrateFormFromStorage';
+import { ApplicationFormWizard } from './ApplicationFormWizard';
 import { isStepId, STEP_ORDER } from '../utils/steps';
 import { getFirstIncompleteStep } from '../utils/validation';
-import { getStepValues } from '../slice/selectors';
+import { getCurrentStep, getStepValues } from '../slice/selectors';
 import { setCurrentStep } from '../slice/jobApplicationSlice';
-import { ApplicationFormWizard } from './ApplicationFormWizard';
 
-export const ApplicationFormWizardRoute: React.FC = () => {
+const FormRoute: React.FC = () => {
   const { stepId } = useParams<{ stepId?: string }>();
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
 
+  const { hydrationDone } = useHydrateFormFromStorage();
   const formValues = useSelector(getStepValues);
+  const currentStep = useSelector(getCurrentStep);
 
   useEffect(() => {
+    if (!hydrationDone) return;
+
+    if (currentStep === stepId) return;
+
     if (!isStepId(stepId)) {
       const first = getFirstIncompleteStep(formValues);
       navigate(`/apply/${first}`, { replace: true });
@@ -23,7 +29,7 @@ export const ApplicationFormWizardRoute: React.FC = () => {
     }
 
     const firstIncomplete = getFirstIncompleteStep(formValues);
-    const requestedIndex = STEP_ORDER.indexOf(stepId as any);
+    const requestedIndex = STEP_ORDER.indexOf(stepId);
     const firstIndex = STEP_ORDER.indexOf(firstIncomplete);
 
     if (requestedIndex > firstIndex) {
@@ -31,10 +37,10 @@ export const ApplicationFormWizardRoute: React.FC = () => {
       return;
     }
 
-    dispatch(setCurrentStep(stepId as any));
-  }, [stepId, formValues, navigate, dispatch]);
+    dispatch(setCurrentStep(stepId));
+  }, [stepId, formValues, navigate, dispatch, hydrationDone, currentStep]);
 
   return <ApplicationFormWizard />;
 };
 
-export default ApplicationFormWizardRoute;
+export default FormRoute;

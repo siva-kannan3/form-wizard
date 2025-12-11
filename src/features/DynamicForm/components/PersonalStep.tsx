@@ -16,57 +16,51 @@ export const PersonalStep = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Personal Info</h2>
+      <h2 className="formTitle">Personal Info</h2>
 
-      <div>
-        <label>
-          Name
-          <input
-            type="text"
-            value={values.personal.name}
-            onChange={(e) => setPersonalField('name', e.target.value)}
-          />
-        </label>
+      <div className="formField">
+        <label>Name</label>
+        <input
+          type="text"
+          value={values.personal.name}
+          onChange={(e) => setPersonalField('name', e.target.value)}
+        />
         {errors.personal.name && <div style={{ color: 'red' }}>{errors.personal.name}</div>}
       </div>
 
-      <div>
-        <label>
-          Phone Number
-          <input
-            type="tel"
-            value={values.personal.phone}
-            onChange={(e) => setPersonalField('phone', e.target.value)}
-          />
-        </label>
+      <div className="formField">
+        <label>Phone Number</label>
+        <input
+          type="tel"
+          value={values.personal.phone}
+          onChange={(e) => setPersonalField('phone', e.target.value)}
+        />
         {errors.personal.phone && <div style={{ color: 'red' }}>{errors.personal.phone}</div>}
       </div>
 
-      <div>
-        <label>
-          Email
-          <input
-            type="email"
-            value={values.personal.email}
-            onChange={(e) => setPersonalField('email', e.target.value)}
-          />
-        </label>
+      <div className="formField">
+        <label>Email</label>
+        <input
+          type="email"
+          value={values.personal.email}
+          onChange={(e) => setPersonalField('email', e.target.value)}
+        />
         {errors.personal.email && <div style={{ color: 'red' }}>{errors.personal.email}</div>}
       </div>
 
-      <div>
-        <label>
-          Location
-          <input
-            type="text"
-            value={values.personal.location}
-            onChange={(e) => setPersonalField('location', e.target.value)}
-          />
-        </label>
+      <div className="formField">
+        <label>Location</label>
+        <input
+          type="text"
+          value={values.personal.location}
+          onChange={(e) => setPersonalField('location', e.target.value)}
+        />
         {errors.personal.location && <div style={{ color: 'red' }}>{errors.personal.location}</div>}
       </div>
 
-      <button type="submit">Next</button>
+      <div className="formFooter">
+        <button type="submit">Next</button>
+      </div>
     </form>
   );
 };

@@ -8,42 +8,63 @@ import { useStepNavigation } from '../hooks/useStepNavigation';
 import { experienceSchema } from '../data/experienceSchema';
 import { rolePreferenceSchema } from '../data/rolesSchema';
 import ReviewStep from './ReviewStep';
+import ProgressBar from './ProgressBar';
+import { computeVisibleFieldsProgressPercent } from '../utils/progress';
 
 export const ApplicationFormWizard = () => {
   const currentStep = useSelector(getCurrentStep);
   const stepErrors = useSelector(getStepErrors);
   const stepValues = useSelector(getStepValues);
 
-  const { setExperienceField, setRoleField } = useJobApplication();
+  const { setExperienceField, setRoleField, resetForm } = useJobApplication();
   const { next, back } = useStepNavigation();
 
-  if (currentStep === STEPS.PERSONAL) {
-    return <PersonalStep />;
-  } else if (currentStep === STEPS.EXPERIENCE) {
-    return (
-      <DynamicStepRenderer
-        values={stepValues.experience}
-        errors={stepErrors.experience}
-        onChange={setExperienceField}
-        onNext={() => next(currentStep)}
-        onBack={() => back(currentStep)}
-        schema={experienceSchema}
-      />
-    );
-  } else if (currentStep === STEPS.ROLE) {
-    return (
-      <DynamicStepRenderer
-        values={stepValues.role}
-        errors={stepErrors.role}
-        onChange={setRoleField}
-        onNext={() => next(currentStep)}
-        onBack={() => back(currentStep)}
-        schema={rolePreferenceSchema}
-      />
-    );
-  } else if (currentStep === STEPS.REVIEW) {
-    return <ReviewStep />;
-  }
+  const stepRenderer = () => {
+    switch (currentStep) {
+      case STEPS.PERSONAL:
+        return <PersonalStep />;
+      case STEPS.EXPERIENCE:
+        return (
+          <DynamicStepRenderer
+            values={stepValues.experience}
+            errors={stepErrors.experience}
+            onChange={setExperienceField}
+            onNext={() => next(currentStep)}
+            onBack={() => back(currentStep)}
+            schema={experienceSchema}
+          />
+        );
+      case STEPS.ROLE:
+        return (
+          <DynamicStepRenderer
+            values={stepValues.role}
+            errors={stepErrors.role}
+            onChange={setRoleField}
+            onNext={() => next(currentStep)}
+            onBack={() => back(currentStep)}
+            schema={rolePreferenceSchema}
+          />
+        );
+      case STEPS.REVIEW:
+        return <ReviewStep />;
+      default:
+        return null;
+    }
+  };
 
-  return <div>Application Form Wizard</div>;
+  return (
+    <div>
+      <header className="pageHeader">
+        <h1>Job Application</h1>
+        <div className="headerActions">
+          <div style={{ flex: 1 }}>
+            <ProgressBar percent={computeVisibleFieldsProgressPercent(stepValues)} showLabel />
+          </div>
+          <button onClick={resetForm}>Reset Form</button>
+        </div>
+      </header>
+
+      <div className="formRenderer">{stepRenderer()}</div>
+    </div>
+  );
 };

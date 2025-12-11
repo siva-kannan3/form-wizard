@@ -32,7 +32,7 @@ export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>{schema.label}</h2>
+      <h2 className="formTitle">{schema.label}</h2>
 
       {schema.fields.map((field) => {
         if (!isFieldVisible(field, values)) return null;
@@ -49,7 +49,7 @@ export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
         );
       })}
 
-      <div style={{ marginTop: 16 }}>
+      <div className="formFooter">
         {onBack && (
           <button type="button" onClick={onBack} style={{ marginRight: 8 }}>
             Back

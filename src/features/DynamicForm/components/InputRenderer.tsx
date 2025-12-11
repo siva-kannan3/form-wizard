@@ -25,7 +25,7 @@ export const InputRenderer: React.FC<InputRendererProps> = ({
 
   if (field.id === 'portfolioUrls') {
     return (
-      <div style={{ marginBottom: 12 }}>
+      <div className="formField">
         <label style={{ display: 'block', marginBottom: 6 }}>{field.label}</label>
 
         <PortfolioList />
@@ -102,7 +102,7 @@ export const InputRenderer: React.FC<InputRendererProps> = ({
   }
 
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div className="formField">
       <label htmlFor={id} style={{ display: 'block', marginBottom: 6 }}>
         {field.label}
         {field.required && <span aria-hidden="true"> *</span>}
