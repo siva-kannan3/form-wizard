@@ -1,17 +1,27 @@
-import type { FormEvent } from 'react';
+import type { FocusEvent, FormEvent } from 'react';
 import { useJobApplication } from '../hooks/useJobApplication';
 import { useStepNavigation } from '../hooks/useStepNavigation';
 import { useSelector } from 'react-redux';
-import { getCurrentStep } from '../slice/selectors';
+import { getAsyncEmailState, getCurrentStep } from '../slice/selectors';
+import { useEmailUniqueness } from '../hooks/useEmailUniqueness';
 
 export const PersonalStep = () => {
-  const { values, errors, setPersonalField } = useJobApplication();
-  const { next } = useStepNavigation();
   const currentStep = useSelector(getCurrentStep);
+
+  const { next } = useStepNavigation();
+  const { values, errors, setPersonalField } = useJobApplication();
+  const { handleEmailBlur } = useEmailUniqueness();
+  const asyncEmail = useSelector(getAsyncEmailState);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     next(currentStep);
+  };
+
+  const handleEmailBlurEvent = (e: FocusEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+
+    handleEmailBlur(email);
   };
 
   return (
@@ -47,7 +57,10 @@ export const PersonalStep = () => {
           type="email"
           value={values.personal.email}
           onChange={(e) => setPersonalField('email', e.target.value)}
+          onBlur={handleEmailBlurEvent}
         />
+        {asyncEmail.status === 'loading' && <div style={{ fontSize: 12 }}>Checking email…</div>}
+        {asyncEmail.error && <div style={{ color: 'red' }}>{asyncEmail.error}</div>}
         {errors.personal.email && <div style={{ color: 'red' }}>{errors.personal.email}</div>}
       </div>
 

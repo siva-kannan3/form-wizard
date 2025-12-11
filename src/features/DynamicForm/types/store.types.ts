@@ -34,6 +34,8 @@ export interface FieldErrors {
   [fieldName: string]: string | undefined;
 }
 
+export type AsyncStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
+
 export interface JobApplicationState {
   currentStep: StepId;
   values: JobApplicationValues;
@@ -41,5 +43,11 @@ export interface JobApplicationState {
     personal: FieldErrors;
     experience: FieldErrors;
     role: FieldErrors;
+  };
+  asyncValidations: {
+    email: {
+      status: AsyncStatus;
+      error: string | null;
+    };
   };
 }

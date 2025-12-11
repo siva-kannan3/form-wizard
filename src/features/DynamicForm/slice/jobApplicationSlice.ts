@@ -2,13 +2,16 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { STEPS } from '../constants/steps';
 import type {
+  AsyncStatus,
   ExperienceData,
   FieldErrors,
   JobApplicationState,
+  JobApplicationValues,
   PersonalData,
   RoleData,
   StepId,
 } from '../types/store.types';
+import { checkEmailUniqueThunk } from './thunks';
 
 const initialState: JobApplicationState = {
   currentStep: STEPS.PERSONAL,
@@ -37,6 +40,9 @@ const initialState: JobApplicationState = {
     personal: {},
     experience: {},
     role: {},
+  },
+  asyncValidations: {
+    email: { status: 'idle', error: null },
   },
 };
 
@@ -133,6 +139,33 @@ export const jobApplicationSlice = createSlice({
         [field]: value,
       };
     },
+
+    setAsyncEmailState(
+      state,
+      action: PayloadAction<{
+        status: AsyncStatus;
+        error?: string | null;
+      }>,
+    ) {
+      state.asyncValidations.email.status = action.payload.status;
+      state.asyncValidations.email.error = action.payload.error ?? null;
+    },
+  },
+
+  extraReducers: (builder) => {
+    builder
+      .addCase(checkEmailUniqueThunk.pending, (state) => {
+        state.asyncValidations.email.status = 'loading';
+        state.asyncValidations.email.error = null;
+      })
+      .addCase(checkEmailUniqueThunk.fulfilled, (state) => {
+        state.asyncValidations.email.status = 'succeeded';
+        state.asyncValidations.email.error = null;
+      })
+      .addCase(checkEmailUniqueThunk.rejected, (state, action) => {
+        state.asyncValidations.email.status = 'failed';
+        state.asyncValidations.email.error = action.payload?.reason ?? 'error';
+      });
   },
 });
 
@@ -147,6 +180,7 @@ export const {
   updateExperienceField,
   updateRoleField,
   setValuesFromLocalStorage,
+  setAsyncEmailState,
 } = jobApplicationSlice.actions;
 
 export default jobApplicationSlice.reducer;
