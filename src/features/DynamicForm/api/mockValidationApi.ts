@@ -1,4 +1,4 @@
-export type EmailCheckResult = { ok: true } | { ok: false; reason: string };
+import type { AsyncValidatorFn } from '../types/jobApplication.types';
 
 function hasEmailDomainTaken(email: string): boolean {
   const lower = String(email || '').toLowerCase();
@@ -9,10 +9,7 @@ function hasEmailDomainTaken(email: string): boolean {
   return false;
 }
 
-export async function checkEmailUniqueApi(
-  email: string,
-  signal?: AbortSignal,
-): Promise<EmailCheckResult> {
+export const checkEmailUniqueApi: AsyncValidatorFn = async (email, signal) => {
   const delay = 500;
 
   await new Promise<void>((resolve, reject) => {
@@ -37,4 +34,4 @@ export async function checkEmailUniqueApi(
   if (rejected) return { ok: false, reason: 'The email domain is restricted' };
 
   return { ok: true };
-}
+};

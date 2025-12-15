@@ -2,14 +2,12 @@ import { type Middleware } from '@reduxjs/toolkit';
 import { savePersistedJobApplication } from '../utils/persistence';
 
 import {
-  updatePersonalField,
-  updateExperienceField,
-  updateRoleField,
-  addPortfolioUrl,
-  updatePortfolioUrl,
-  deletePortfolioUrl,
   setCurrentStep,
   resetApplication,
+  setFieldValue,
+  addArrayItem,
+  updateArrayItem,
+  removeArrayItem,
 } from './jobApplicationSlice';
 import { debounce } from '../utils/common';
 import type { RootState } from '../../../store';
@@ -17,12 +15,10 @@ import { JOB_APPLICATION_LOCAL_STORAGE_VERSION } from '../constants/common';
 import type { PersistedApp } from '../types/persistence.types';
 
 const TRIGGER_ACTIONS = new Set([
-  updatePersonalField.type,
-  updateExperienceField.type,
-  updateRoleField.type,
-  addPortfolioUrl.type,
-  updatePortfolioUrl.type,
-  deletePortfolioUrl.type,
+  setFieldValue.type,
+  addArrayItem.type,
+  updateArrayItem.type,
+  removeArrayItem.type,
   setCurrentStep.type,
   resetApplication.type,
 ]);

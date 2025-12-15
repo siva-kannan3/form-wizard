@@ -1,55 +1,46 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentStep, getStepErrors, getStepValues } from '../slice/selectors';
-import { PersonalStep } from './PersonalStep';
-import { STEPS } from '../constants/steps';
 import DynamicStepRenderer from './DynamicStepRenderer';
 import { useJobApplication } from '../hooks/useJobApplication';
 import { useStepNavigation } from '../hooks/useStepNavigation';
-import { experienceSchema } from '../data/experienceSchema';
-import { rolePreferenceSchema } from '../data/rolesSchema';
-import ReviewStep from './ReviewStep';
 import ProgressBar from './ProgressBar';
 import { computeVisibleFieldsProgressPercent } from '../utils/progress';
+import { STEP_CONFIG } from '../data/stepConfig';
+import ReviewStep from './ReviewStep';
+import { STEPS } from '../constants/steps';
+import { setFieldValue } from '../slice/jobApplicationSlice';
 
 export const ApplicationFormWizard = () => {
+  const dispatch = useDispatch();
   const currentStep = useSelector(getCurrentStep);
   const stepErrors = useSelector(getStepErrors);
   const stepValues = useSelector(getStepValues);
 
-  const { setExperienceField, setRoleField, resetForm } = useJobApplication();
+  const { resetForm } = useJobApplication();
   const { next, back } = useStepNavigation();
 
-  const stepRenderer = () => {
-    switch (currentStep) {
-      case STEPS.PERSONAL:
-        return <PersonalStep />;
-      case STEPS.EXPERIENCE:
-        return (
-          <DynamicStepRenderer
-            values={stepValues.experience}
-            errors={stepErrors.experience}
-            onChange={setExperienceField}
-            onNext={() => next(currentStep)}
-            onBack={() => back(currentStep)}
-            schema={experienceSchema}
-          />
-        );
-      case STEPS.ROLE:
-        return (
-          <DynamicStepRenderer
-            values={stepValues.role}
-            errors={stepErrors.role}
-            onChange={setRoleField}
-            onNext={() => next(currentStep)}
-            onBack={() => back(currentStep)}
-            schema={rolePreferenceSchema}
-          />
-        );
-      case STEPS.REVIEW:
-        return <ReviewStep />;
-      default:
-        return null;
-    }
+  const renderStep = () => {
+    if (currentStep === STEPS.REVIEW) return <ReviewStep />;
+    const config = STEP_CONFIG[currentStep];
+    return (
+      <DynamicStepRenderer
+        schema={config.schema}
+        values={stepValues[config.valuesKey]}
+        errors={stepErrors[config.valuesKey]}
+        onChange={(field, value) =>
+          dispatch(
+            setFieldValue({
+              step: currentStep,
+              fieldId: field,
+              value,
+            }),
+          )
+        }
+        onNext={() => next(currentStep)}
+        onBack={() => back(currentStep)}
+        currentStep={currentStep}
+      />
+    );
   };
 
   return (
@@ -64,7 +55,7 @@ export const ApplicationFormWizard = () => {
         </div>
       </header>
 
-      <div className="formRenderer">{stepRenderer()}</div>
+      <div className="formRenderer">{renderStep()}</div>
     </div>
   );
 };

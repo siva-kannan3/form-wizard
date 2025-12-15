@@ -1,112 +1,150 @@
 import React from 'react';
 import type { FieldInputSchema } from '../types/jobApplication.types';
+import type { StepId } from '../types/store.types';
 import PortfolioList from './PortfolioList';
+import { runAsyncFieldValidation } from '../slice/thunks';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch } from '../../../store';
+import { getAsyncFieldState } from '../slice/selectors';
 
 export type InputValue = string | number | boolean | undefined;
 
 interface InputRendererProps {
+  currentStep: StepId;
   field: FieldInputSchema;
   value: InputValue;
-  error?: string | undefined;
+  error?: string;
   onChange: (name: string, value: InputValue) => void;
   idPrefix?: string;
 }
 
+const HTML_INPUT_MAP: Record<string, string> = {
+  textInput: 'text',
+  emailInput: 'email',
+  tel: 'tel',
+  numberInput: 'number',
+};
+
 export const InputRenderer: React.FC<InputRendererProps> = ({
+  currentStep,
   field,
   value,
   error,
   onChange,
   idPrefix = 'field',
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { status: asyncStatus, error: asyncError } = useSelector(
+    getAsyncFieldState(currentStep, field.id),
+  );
+
   const id = `${idPrefix}-${field.id}`;
 
-  if (field.id === 'portfolioUrls') {
-    return (
-      <div className="formField">
-        <label style={{ display: 'block', marginBottom: 6 }}>{field.label}</label>
+  const handleBlur = () => {
+    if (!field.asyncValidate) return;
 
-        <PortfolioList />
-
-        {error && (
-          <div role="alert" style={{ color: 'red', marginTop: 6 }}>
-            {error}
-          </div>
-        )}
-      </div>
+    dispatch(
+      runAsyncFieldValidation({
+        step: currentStep,
+        fieldId: field.id,
+        value,
+        validator: field.asyncValidate,
+      }),
     );
-  }
-
-  const sharedProps = {
-    id,
-    name: field.id,
-  } as const;
+  };
 
   let inputNode: React.ReactNode = null;
 
-  if (field.options && field.rendererType === 'select') {
-    inputNode = (
-      <select
-        {...sharedProps}
-        value={value === undefined || value === null ? '' : String(value)}
-        onChange={(e) => onChange(field.id, e.target.value || undefined)}
-      >
-        <option value="">Select...</option>
-        {field.options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-    );
-  } else if (field.type === 'boolean') {
-    inputNode = (
-      <input
-        {...sharedProps}
-        type="checkbox"
-        checked={Boolean(value)}
-        onChange={(e) => onChange(field.id, e.target.checked)}
-      />
-    );
-  } else if (field.rendererType === 'textarea') {
-    inputNode = (
-      <textarea
-        {...sharedProps}
-        value={value === undefined || value === null ? '' : String(value)}
-        onChange={(e) => onChange(field.id, e.target.value)}
-        placeholder={field.label}
-      />
-    );
-  } else {
-    const inputType = field.type === 'number' ? 'number' : 'text';
-    inputNode = (
-      <input
-        {...sharedProps}
-        type={inputType}
-        value={value === undefined || value === null ? '' : String(value)}
-        onChange={(e) => {
-          const raw = e.target.value;
-          if (field.type === 'number') {
-            onChange(field.id, raw === '' ? undefined : Number(raw));
-          } else {
-            onChange(field.id, raw);
-          }
-        }}
-        placeholder={field.label}
-        min={field.min ? field.min : undefined}
-      />
-    );
+  switch (field.rendererType) {
+    case 'portfolioList':
+      inputNode = <PortfolioList stepId={currentStep} fieldId={field.id} />;
+      break;
+
+    case 'select':
+      inputNode = (
+        <select
+          id={id}
+          name={field.id}
+          value={value ?? ''}
+          onChange={(e) => onChange(field.id, e.target.value || undefined)}
+          onBlur={handleBlur}
+        >
+          <option value="">Select...</option>
+          {field.options?.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      );
+      break;
+
+    case 'checkbox':
+      inputNode = (
+        <input
+          id={id}
+          name={field.id}
+          type="checkbox"
+          checked={Boolean(value)}
+          onChange={(e) => onChange(field.id, e.target.checked)}
+          onBlur={handleBlur}
+        />
+      );
+      break;
+
+    case 'textarea':
+      inputNode = (
+        <textarea
+          id={id}
+          name={field.id}
+          value={value ?? ''}
+          onChange={(e) => onChange(field.id, e.target.value)}
+          onBlur={handleBlur}
+          placeholder={field.label}
+        />
+      );
+      break;
+
+    default: {
+      const inputType =
+        HTML_INPUT_MAP[field.rendererType] ?? (field.type === 'number' ? 'number' : 'text');
+
+      inputNode = (
+        <input
+          id={id}
+          name={field.id}
+          type={inputType}
+          value={value ?? ''}
+          onChange={(e) => {
+            const raw = e.target.value;
+            if (field.type === 'number') {
+              onChange(field.id, raw === '' ? undefined : Number(raw));
+            } else {
+              onChange(field.id, raw);
+            }
+          }}
+          onBlur={handleBlur}
+          min={field.min}
+          placeholder={field.label}
+        />
+      );
+    }
   }
 
   return (
     <div className="formField">
-      <label htmlFor={id} style={{ display: 'block', marginBottom: 6 }}>
+      <label htmlFor={id}>
         {field.label}
         {field.required && <span aria-hidden="true"> *</span>}
       </label>
 
-      <div>{inputNode}</div>
+      {inputNode}
 
+      {asyncStatus === 'loading' && (
+        <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>Validating…</div>
+      )}
+
+      {asyncError && <div style={{ color: 'red', marginTop: 4 }}>{asyncError}</div>}
       {error && (
         <div id={`${id}-err`} style={{ color: 'red', marginTop: 6 }}>
           {error}

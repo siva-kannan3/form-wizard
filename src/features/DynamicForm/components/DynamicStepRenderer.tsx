@@ -2,7 +2,7 @@ import React, { type FormEvent } from 'react';
 import { InputRenderer } from './InputRenderer';
 import type { StepSchema } from '../types/jobApplication.types';
 import { isFieldVisible } from '../utils/visibility';
-import type { FieldErrors } from '../types/store.types';
+import type { FieldErrors, StepId } from '../types/store.types';
 
 export type StepValues = Record<string, any>;
 
@@ -13,6 +13,7 @@ interface DynamicStepRendererProps {
   onChange: (field: string, value: any) => void;
   onNext: () => void;
   onBack?: () => void;
+  currentStep: StepId;
 }
 
 export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
@@ -22,6 +23,7 @@ export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
   onChange,
   onNext,
   onBack,
+  currentStep,
 }) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,6 +44,7 @@ export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
             value={values[field.id]}
             error={errors[field.id]}
             onChange={(name, val) => onChange(name, val)}
+            currentStep={currentStep}
           />
         );
       })}

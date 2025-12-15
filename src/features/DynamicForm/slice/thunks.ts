@@ -1,21 +1,50 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { checkEmailUniqueApi } from '../api/mockValidationApi';
+import type { StepId } from '../types/store.types';
+import type { AsyncValidatorFn } from '../types/jobApplication.types';
 
-export const checkEmailUniqueThunk = createAsyncThunk<
-  { email: string },
-  { email: string },
-  { rejectValue: { email: string; reason: string } }
->('jobApplication/checkEmailUnique', async ({ email }, { signal, rejectWithValue }) => {
-  try {
-    const res = await checkEmailUniqueApi(email, signal as unknown as AbortSignal);
-    if (!res.ok) {
-      return rejectWithValue({ email, reason: res.reason });
+type AsyncValidationSuccessPayload = {
+  step: StepId;
+  fieldId: string;
+};
+
+type AsyncValidationErrorPayload = {
+  step: StepId;
+  fieldId: string;
+  error: string;
+};
+
+type AsyncValidationArgs = {
+  step: StepId;
+  fieldId: string;
+  value: unknown;
+  validator: AsyncValidatorFn;
+};
+
+export const runAsyncFieldValidation = createAsyncThunk<
+  AsyncValidationSuccessPayload,
+  AsyncValidationArgs,
+  { rejectValue: AsyncValidationErrorPayload }
+>(
+  'jobApplication/runAsyncFieldValidation',
+  async ({ step, fieldId, value, validator }, { signal, rejectWithValue }) => {
+    try {
+      const result = await validator(value, signal);
+
+      if (!result.ok) {
+        return rejectWithValue({
+          step,
+          fieldId,
+          error: result.reason,
+        });
+      }
+
+      return { step, fieldId };
+    } catch (err) {
+      return rejectWithValue({
+        step,
+        fieldId,
+        error: 'Async validation failed' + err,
+      });
     }
-    return { email };
-  } catch (err: any) {
-    if (err?.name === 'AbortError') {
-      throw err;
-    }
-    return rejectWithValue({ email, reason: 'error' });
-  }
-});
+  },
+);

@@ -17,7 +17,7 @@ export const rolePreferenceSchema: StepSchema = {
       id: 'reactYoe',
       label: 'React Experience (years)',
       type: 'number',
-      rendererType: 'textInput',
+      rendererType: 'numberInput',
       min: 0,
       required: true,
       showIf: { fieldId: 'role', equals: 'frontend' },
@@ -26,7 +26,20 @@ export const rolePreferenceSchema: StepSchema = {
       id: 'portfolioUrls',
       label: 'Portfolio URLs',
       type: 'string',
+      rendererType: 'portfolioList',
       showIf: { fieldId: 'role', equals: 'frontend' },
+      reviewRender: (value) => {
+        if (!Array.isArray(value) || value.length === 0) return '—';
+        return (
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {value.map((u, i) => (
+              <li key={i} style={{ wordBreak: 'break-all', marginBottom: 6 }}>
+                {u || '—'}
+              </li>
+            ))}
+          </ul>
+        );
+      },
     },
     {
       id: 'nodeYoe',

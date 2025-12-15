@@ -1,28 +1,24 @@
 import { useDispatch, useSelector } from 'react-redux';
+import type { StepId } from '../types/store.types';
 import { getStepValues } from '../slice/selectors';
-import {
-  addPortfolioUrl,
-  deletePortfolioUrl,
-  updatePortfolioUrl,
-} from '../slice/jobApplicationSlice';
+import { addArrayItem, updateArrayItem, removeArrayItem } from '../slice/jobApplicationSlice';
+import { STEPS } from '../constants/steps';
 
-export const PortfolioList = () => {
+interface PortfolioListProps {
+  stepId: StepId;
+  fieldId: string;
+}
+
+export const PortfolioList: React.FC<PortfolioListProps> = ({ stepId, fieldId }) => {
   const dispatch = useDispatch();
   const stepValues = useSelector(getStepValues);
 
-  const list = stepValues.role.portfolioUrls;
+  if (stepId === STEPS.REVIEW) return;
 
-  const handleAdd = () => {
-    dispatch(addPortfolioUrl());
-  };
+  console.log('*** portfolio steps', stepValues, stepId, fieldId);
 
-  const handleUpdate = (idx: number, val: string) => {
-    dispatch(updatePortfolioUrl({ index: idx, value: val }));
-  };
+  const list = (stepValues[stepId][fieldId] ?? []) as string[];
 
-  const handleRemove = (idx: number) => {
-    dispatch(deletePortfolioUrl({ index: idx }));
-  };
   return (
     <div>
       {list.length === 0 && <div style={{ marginBottom: 8, color: '#666' }}>No entries yet</div>}
@@ -32,17 +28,29 @@ export const PortfolioList = () => {
           <input
             type="url"
             value={it}
-            placeholder={'https://'}
-            onChange={(e) => handleUpdate(idx, e.target.value)}
+            placeholder="https://"
+            onChange={(e) =>
+              dispatch(
+                updateArrayItem({
+                  step: stepId,
+                  fieldId,
+                  index: idx,
+                  value: e.target.value,
+                }),
+              )
+            }
             style={{ flex: 1 }}
           />
-          <button type="button" onClick={() => handleRemove(idx)}>
+          <button
+            type="button"
+            onClick={() => dispatch(removeArrayItem({ step: stepId, fieldId, index: idx }))}
+          >
             Delete
           </button>
         </div>
       ))}
 
-      <button type="button" onClick={handleAdd}>
+      <button type="button" onClick={() => dispatch(addArrayItem({ step: stepId, fieldId }))}>
         Add
       </button>
     </div>

@@ -9,7 +9,7 @@ export const experienceSchema: StepSchema = {
       id: 'yoe',
       label: 'Years of Experience',
       type: 'number',
-      rendererType: 'textInput',
+      rendererType: 'numberInput',
       required: true,
       gt: 0,
       min: 0,

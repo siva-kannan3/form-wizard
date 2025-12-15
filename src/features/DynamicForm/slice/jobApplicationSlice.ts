@@ -3,52 +3,27 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { STEPS } from '../constants/steps';
 import type {
   AsyncStatus,
-  ExperienceData,
   FieldErrors,
   JobApplicationState,
   JobApplicationValues,
-  PersonalData,
-  RoleData,
   StepId,
 } from '../types/store.types';
-import { checkEmailUniqueThunk } from './thunks';
+import { runAsyncFieldValidation } from './thunks';
 
 const initialState: JobApplicationState = {
   currentStep: STEPS.PERSONAL,
   values: {
-    personal: {
-      name: '',
-      phone: '',
-      email: '',
-      location: '',
-    },
-    experience: {
-      yoe: undefined,
-      mentorshipRequired: false,
-      teamLead: false,
-      primaryTechStack: '',
-    },
-    role: {
-      role: undefined,
-      reactYoe: undefined,
-      portfolioUrls: [],
-      nodeYoe: undefined,
-      automationExperience: undefined,
-    },
+    personal: {},
+    experience: {},
+    role: {},
   },
   errors: {
     personal: {},
     experience: {},
     role: {},
   },
-  asyncValidations: {
-    email: { status: 'idle', error: null },
-  },
+  asyncValidations: {},
 };
-
-type PersonalFieldName = keyof PersonalData;
-type ExperienceFieldName = keyof ExperienceData;
-type RoleFieldName = keyof RoleData;
 
 export const jobApplicationSlice = createSlice({
   name: 'jobApplication',
@@ -97,74 +72,100 @@ export const jobApplicationSlice = createSlice({
       Object.assign(state, initialState);
     },
 
-    addPortfolioUrl(state) {
-      state.values.role.portfolioUrls.push('');
-    },
-
-    updatePortfolioUrl(state, action: PayloadAction<{ index: number; value: string }>) {
-      const { index, value } = action.payload;
-      if (state.values.role.portfolioUrls[index] !== undefined) {
-        state.values.role.portfolioUrls[index] = value;
-      }
-    },
-
-    deletePortfolioUrl(state, action: PayloadAction<{ index: number }>) {
-      const { index } = action.payload;
-      state.values.role.portfolioUrls.splice(index, 1);
-    },
-
-    updatePersonalField(state, action: PayloadAction<{ field: PersonalFieldName; value: any }>) {
-      const { field, value } = action.payload;
-      state.values.personal = {
-        ...state.values.personal,
-        [field]: value,
-      };
-    },
-
-    updateExperienceField(
-      state,
-      action: PayloadAction<{ field: ExperienceFieldName; value: any }>,
-    ) {
-      const { field, value } = action.payload;
-      state.values.experience = {
-        ...state.values.experience,
-        [field]: value,
-      };
-    },
-
-    updateRoleField(state, action: PayloadAction<{ field: RoleFieldName; value: any }>) {
-      const { field, value } = action.payload;
-      state.values.role = {
-        ...state.values.role,
-        [field]: value,
-      };
-    },
-
-    setAsyncEmailState(
+    setFieldValue(
       state,
       action: PayloadAction<{
+        step: Exclude<StepId, 'review'>;
+        fieldId: string;
+        value: unknown;
+      }>,
+    ) {
+      state.values[action.payload.step][action.payload.fieldId] = action.payload.value;
+    },
+
+    addArrayItem(
+      state,
+      action: PayloadAction<{ step: Exclude<StepId, 'review'>; fieldId: string }>,
+    ) {
+      const arr = (state.values[action.payload.step][action.payload.fieldId] ?? []) as unknown[];
+      arr.push('');
+      state.values[action.payload.step][action.payload.fieldId] = arr;
+    },
+
+    updateArrayItem(
+      state,
+      action: PayloadAction<{
+        step: Exclude<StepId, 'review'>;
+        fieldId: string;
+        index: number;
+        value: unknown;
+      }>,
+    ) {
+      const arr = state.values[action.payload.step][action.payload.fieldId] as unknown[];
+      arr[action.payload.index] = action.payload.value;
+    },
+
+    removeArrayItem(
+      state,
+      action: PayloadAction<{ step: Exclude<StepId, 'review'>; fieldId: string; index: number }>,
+    ) {
+      const arr = state.values[action.payload.step][action.payload.fieldId] as unknown[];
+      arr.splice(action.payload.index, 1);
+    },
+
+    setAsyncValidationState(
+      state,
+      action: PayloadAction<{
+        step: StepId;
+        fieldId: string;
         status: AsyncStatus;
         error?: string | null;
       }>,
     ) {
-      state.asyncValidations.email.status = action.payload.status;
-      state.asyncValidations.email.error = action.payload.error ?? null;
+      const { step, fieldId, status, error = null } = action.payload;
+
+      if (!state.asyncValidations[step]) {
+        state.asyncValidations[step] = {};
+      }
+
+      state.asyncValidations[step]![fieldId] = { status, error };
+    },
+
+    clearAsyncValidation(state, action: PayloadAction<{ step: StepId; fieldId: string }>) {
+      delete state.asyncValidations[action.payload.step]?.[action.payload.fieldId];
     },
   },
 
   extraReducers: (builder) => {
     builder
-      .addCase(checkEmailUniqueThunk.pending, (state) => {
-        state.asyncValidations.email.status = 'loading';
-        state.asyncValidations.email.error = null;
+      .addCase(runAsyncFieldValidation.pending, (state, action) => {
+        const { step, fieldId } = action.meta.arg;
+
+        state.asyncValidations[step] ??= {};
+        state.asyncValidations[step]![fieldId] = {
+          status: 'loading',
+          error: null,
+        };
       })
-      .addCase(checkEmailUniqueThunk.fulfilled, (state) => {
-        state.asyncValidations.email.status = 'succeeded';
-        state.asyncValidations.email.error = null;
+      .addCase(runAsyncFieldValidation.fulfilled, (state, action) => {
+        const { step, fieldId } = action.payload;
+
+        state.asyncValidations[step]![fieldId] = {
+          status: 'succeeded',
+          error: null,
+        };
       })
-      .addCase(checkEmailUniqueThunk.rejected, (state, action) => {
-        state.asyncValidations.email.status = 'failed';
-        state.asyncValidations.email.error = action.payload?.reason ?? 'error';
+      .addCase(runAsyncFieldValidation.rejected, (state, action) => {
+        const payload = action.payload as
+          | { step: StepId; fieldId: string; error: string }
+          | undefined;
+
+        if (!payload) return;
+
+        state.asyncValidations[payload.step]![payload.fieldId] = {
+          status: 'failed',
+          error: payload.error,
+        };
       });
   },
 });
@@ -173,14 +174,14 @@ export const {
   setCurrentStep,
   setStepErrors,
   resetApplication,
-  addPortfolioUrl,
-  updatePortfolioUrl,
-  deletePortfolioUrl,
-  updatePersonalField,
-  updateExperienceField,
-  updateRoleField,
+  setFieldValue,
+  setAsyncValidationState,
+  clearAsyncValidation,
+  addArrayItem,
+  updateArrayItem,
+  removeArrayItem,
+
   setValuesFromLocalStorage,
-  setAsyncEmailState,
 } = jobApplicationSlice.actions;
 
 export default jobApplicationSlice.reducer;
