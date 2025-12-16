@@ -14,6 +14,7 @@ interface DynamicStepRendererProps {
   onNext: () => void;
   onBack?: () => void;
   currentStep: StepId;
+  stepIndex: number;
 }
 
 export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
@@ -24,6 +25,7 @@ export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
   onNext,
   onBack,
   currentStep,
+  stepIndex,
 }) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ export const DynamicStepRenderer: React.FC<DynamicStepRendererProps> = ({
       })}
 
       <div className="formFooter">
-        {onBack && (
+        {onBack && stepIndex !== 0 && (
           <button type="button" onClick={onBack} style={{ marginRight: 8 }}>
             Back
           </button>

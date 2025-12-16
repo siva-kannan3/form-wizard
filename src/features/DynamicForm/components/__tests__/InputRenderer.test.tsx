@@ -1,42 +1,49 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
 import { describe, expect, test, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 import InputRenderer from '../InputRenderer';
+import { STEPS } from '../../constants/steps';
+import type { FieldInputSchema } from '../../types/jobApplication.types';
 
-vi.mock('../PortfolioList', () => {
+vi.mock('react-redux', async () => {
+  const actual = await vi.importActual('react-redux');
   return {
-    default: () => <div data-testid="mock-portfolio-list">PortfolioListMock</div>,
+    ...actual,
+    useDispatch: () => vi.fn(),
+    useSelector: (selector: any) =>
+      selector({
+        jobApplication: {
+          asyncValidations: {
+            personal: {
+              email: { status: 'idle', error: null },
+            },
+          },
+        },
+      }),
   };
 });
 
-type Field = {
-  id: string;
-  label: string;
-  type?: string;
-  rendererType?: string;
-  options?: string[];
-  required?: boolean;
-  min?: number;
-};
+vi.mock('../PortfolioList', () => ({
+  default: () => <div data-testid="mock-portfolio-list">PortfolioListMock</div>,
+}));
 
-const renderInput = (field: Partial<Field>, propsOverrides?: any) => {
-  const fieldComplete: Field = {
-    id: field.id ?? 'testField',
-    label: field.label ?? 'Test Field',
-    type: field.type ?? 'string',
-    rendererType: field.rendererType,
-    options: field.options,
-    required: field.required,
-    min: field.min,
-  };
-
+const renderInput = (fieldOverrides: Partial<any>, propsOverrides?: any) => {
   const onChange = propsOverrides?.onChange ?? vi.fn();
+
+  const field: FieldInputSchema = {
+    id: 'testField',
+    label: 'Test Field',
+    type: 'string',
+    rendererType: 'textInput',
+    ...fieldOverrides,
+  };
 
   render(
     <InputRenderer
-      field={fieldComplete as any}
+      currentStep={STEPS.PERSONAL}
+      field={field}
       value={propsOverrides?.value}
       error={propsOverrides?.error}
       onChange={onChange}
@@ -49,76 +56,97 @@ const renderInput = (field: Partial<Field>, propsOverrides?: any) => {
 
 describe('InputRenderer', () => {
   test('renders text input and calls onChange with string', async () => {
-    const { onChange } = renderInput({ id: 'name', label: 'Full Name', type: 'string' });
-    const input = screen.getByLabelText(/Full Name/i) as HTMLInputElement;
-    expect(input).toBeInTheDocument();
+    const { onChange } = renderInput({
+      id: 'name',
+      label: 'Full Name',
+      rendererType: 'textInput',
+    });
+
+    const input = screen.getByLabelText(/Full Name/i);
     await userEvent.type(input, 'Alice');
 
     expect(onChange).toHaveBeenCalled();
   });
 
   test('renders number input and converts value to number', async () => {
-    const { onChange } = renderInput(
-      { id: 'yoe', label: 'Years', type: 'number' },
-      { value: undefined },
-    );
-    const input = screen.getByLabelText(/Years/i) as HTMLInputElement;
+    const { onChange } = renderInput({
+      id: 'yoe',
+      label: 'Years',
+      type: 'number',
+      rendererType: 'numberInput',
+    });
+
+    const input = screen.getByLabelText(/Years/i);
     expect(input).toHaveAttribute('type', 'number');
+
     await userEvent.clear(input);
     await userEvent.type(input, '5');
 
-    expect(onChange).toHaveBeenCalled();
+    expect(onChange).toHaveBeenLastCalledWith('yoe', 5);
+  });
 
-    await userEvent.clear(input);
+  test('renders checkbox and calls onChange with boolean', async () => {
+    const { onChange } = renderInput({
+      id: 'teamLead',
+      label: 'Team Lead',
+      type: 'boolean',
+      rendererType: 'checkbox',
+    });
+
+    const checkbox = screen.getByLabelText(/Team Lead/i);
+    expect(checkbox).toHaveAttribute('type', 'checkbox');
+
+    await userEvent.click(checkbox);
+    expect(onChange).toHaveBeenCalledWith('teamLead', true);
+  });
+
+  test('renders textarea', async () => {
+    const { onChange } = renderInput({
+      id: 'bio',
+      label: 'Bio',
+      rendererType: 'textarea',
+    });
+
+    const textarea = screen.getByLabelText(/Bio/i);
+    await userEvent.type(textarea, 'hello');
+
     expect(onChange).toHaveBeenCalled();
   });
 
-  test('renders checkbox for boolean and calls onChange with boolean (in order)', async () => {
-    const { onChange } = renderInput({ id: 'teamLead', label: 'Team Lead', type: 'boolean' });
-    const input = screen.getByLabelText(/Team Lead/i) as HTMLInputElement;
-    expect(input).toBeInTheDocument();
-    expect(input.getAttribute('type')).toBe('checkbox');
+  test('renders select and updates value', async () => {
+    const { onChange } = renderInput({
+      id: 'role',
+      label: 'Role',
+      rendererType: 'select',
+      options: ['frontend', 'backend'],
+    });
 
-    await userEvent.click(input);
-    expect(onChange).toHaveBeenNthCalledWith(1, 'teamLead', true);
-  });
-
-  test('renders textarea when rendererType is textarea', async () => {
-    const { onChange } = renderInput(
-      { id: 'bio', label: 'Bio', type: 'string', rendererType: 'textarea' },
-      { value: '' },
-    );
-    const textarea = screen.getByLabelText(/Bio/i) as HTMLTextAreaElement;
-    expect(textarea).toBeInTheDocument();
-    await userEvent.type(textarea, 'hello world');
-    expect(onChange).toHaveBeenCalled();
-  });
-
-  test('renders select and calls onChange with selected value', async () => {
-    const opts = ['frontend', 'backend'];
-    const { onChange } = renderInput(
-      { id: 'role', label: 'Role', type: 'string', rendererType: 'select', options: opts },
-      { value: '' },
-    );
-    const select = screen.getByLabelText(/Role/i) as HTMLSelectElement;
-    expect(select).toBeInTheDocument();
-
+    const select = screen.getByLabelText(/Role/i);
     await userEvent.selectOptions(select, 'backend');
+
     expect(onChange).toHaveBeenCalledWith('role', 'backend');
   });
 
-  test('renders PortfolioList special case', () => {
-    renderInput({ id: 'portfolioUrls', label: 'Portfolio URLs', type: 'array' }, { value: [] });
-    const mock = screen.getByTestId('mock-portfolio-list');
-    expect(mock).toBeInTheDocument();
+  test('renders PortfolioList for portfolioList renderer', () => {
+    renderInput({
+      id: 'portfolioUrls',
+      label: 'Portfolio',
+      rendererType: 'portfolioList',
+    });
+
+    expect(screen.getByTestId('mock-portfolio-list')).toBeInTheDocument();
   });
 
-  test('displays error message and aria attributes', () => {
+  test('renders error message', () => {
     renderInput(
-      { id: 'email', label: 'Email', type: 'string' },
-      { value: '', error: 'Invalid email' },
+      {
+        id: 'email',
+        label: 'Email',
+        rendererType: 'emailInput',
+      },
+      { error: 'Invalid email' },
     );
-    const err = screen.getByText(/Invalid email/i);
-    expect(err).toBeInTheDocument();
+
+    expect(screen.getByText(/Invalid email/i)).toBeInTheDocument();
   });
 });

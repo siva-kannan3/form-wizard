@@ -9,6 +9,7 @@ import { STEP_CONFIG } from '../data/stepConfig';
 import ReviewStep from './ReviewStep';
 import { STEPS } from '../constants/steps';
 import { setFieldValue } from '../slice/jobApplicationSlice';
+import { STEP_ORDER } from '../utils/steps';
 
 export const ApplicationFormWizard = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,7 @@ export const ApplicationFormWizard = () => {
   const renderStep = () => {
     if (currentStep === STEPS.REVIEW) return <ReviewStep />;
     const config = STEP_CONFIG[currentStep];
+    const stepIndex = STEP_ORDER.findIndex((step) => step === currentStep);
     return (
       <DynamicStepRenderer
         schema={config.schema}
@@ -39,6 +41,7 @@ export const ApplicationFormWizard = () => {
         onNext={() => next(currentStep)}
         onBack={() => back(currentStep)}
         currentStep={currentStep}
+        stepIndex={stepIndex}
       />
     );
   };
